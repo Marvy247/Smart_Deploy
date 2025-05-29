@@ -1,0 +1,38 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: nightly
+    
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build packages
+      run: npm run build
+    
+    - name: Verify contracts
+      run: forge build
+    
+    - name: Deploy contracts
+      run: |
+        echo "Deployment would happen here"
+        # Actual deployment commands would be added later
+        # after configuring deployment scripts
