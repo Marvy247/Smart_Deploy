@@ -26,4 +26,10 @@ Thumbs.db
 .idea/
 
 # Markdown files (to be ignored as per user request)
+# Ignoring all markdown files except README.md
 *.md
+!README.md
+
+# Explicitly ignore architecture and todos files/directories
+architecture
+todos
