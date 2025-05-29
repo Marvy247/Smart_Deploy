@@ -8,6 +8,12 @@
     "lint": "eslint 'src/**/*.ts'",
     "start": "node dist/index.js"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "ethers": "^6.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.24",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
 }
