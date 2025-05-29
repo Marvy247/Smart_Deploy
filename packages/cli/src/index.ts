@@ -46,4 +46,20 @@ program
     });
   });
 
+import { loadConfig } from './config';
+
+program
+  .command('config-validate')
+  .description('Validate a project configuration file')
+  .argument('<configPath>', 'Path to the config file (JSON or YAML)')
+  .action((configPath: string) => {
+    try {
+      const config = loadConfig(configPath);
+      console.log('Configuration is valid:', config);
+    } catch (error: any) {
+      console.error('Configuration validation failed:', error.message);
+      process.exit(1);
+    }
+  });
+
 program.parse(process.argv);
