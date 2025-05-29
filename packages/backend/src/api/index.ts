@@ -6,6 +6,7 @@ import morgan from 'morgan';
 
 import projectsRouter from './routes/projects';
 import deploymentsRouter from './routes/deployments';
+import metricsRouter from './routes/metrics';
 import authRouter from './routes/auth';
 import { authenticateToken } from './middleware/auth';
 import { errorHandler, notFoundHandler } from './middleware/error';
@@ -32,6 +33,7 @@ app.use(limiter);
 app.use('/api/auth', authRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/deployments', deploymentsRouter);
+app.use('/api/metrics', metricsRouter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
