@@ -14,13 +14,23 @@
   "devDependencies": {
     "@types/chai": "^5.2.2",
     "@types/mocha": "^10.0.10",
+    "@types/nock": "^10.0.3",
+    "@types/sinon": "^17.0.4",
+    "@types/sinon-chai": "^4.0.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "chai": "^5.2.0",
     "eslint": "^8.0.0",
     "mocha": "^11.5.0",
+    "nock": "^14.0.4",
     "prettier": "^2.0.0",
+    "sinon": "^20.0.0",
+    "sinon-chai": "^4.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@ethersproject/providers": "^5.8.0",
+    "axios": "^1.9.0"
   }
 }
