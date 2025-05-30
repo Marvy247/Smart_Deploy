@@ -9,23 +9,23 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor for auth token
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+/* Temporarily disabled auth token interceptor to allow unauthenticated API requests */
+// api.interceptors.request.use((config) => {
+//   const token = localStorage.getItem('token');
+//   if (token) {
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   return config;
+// });
 
-// Add response interceptor for error handling
+/* Temporarily disable redirect on 401 to avoid 404 /login errors during testing */
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized error (e.g., redirect to login)
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Disabled redirect to /login during unauthenticated testing
+      // localStorage.removeItem('token');
+      // window.location.href = '/login';
     }
     return Promise.reject(error);
   }

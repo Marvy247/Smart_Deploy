@@ -48,16 +48,36 @@ export default function TransactionChart({ transactions }: TransactionChartProps
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     interaction: {
       mode: 'index' as const,
       intersect: false,
     },
     stacked: false,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Transaction Activity Over Time',
+        font: {
+          size: 18,
+        },
+      },
+      legend: {
+        position: 'top' as const,
+      },
+      tooltip: {
+        enabled: true,
+      },
+    },
     scales: {
       y: {
         type: 'linear' as const,
         display: true,
         position: 'left' as const,
+        title: {
+          display: true,
+          text: 'Transaction Count',
+        },
       },
       y1: {
         type: 'linear' as const,
@@ -66,9 +86,23 @@ export default function TransactionChart({ transactions }: TransactionChartProps
         grid: {
           drawOnChartArea: false,
         },
+        title: {
+          display: true,
+          text: 'Gas Used',
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Date',
+        },
       },
     },
   };
 
-  return <Line data={data} options={options} />;
+  return (
+    <div style={{ maxWidth: '100%', overflowX: 'auto', height: '300px' }}>
+      <Line data={data} options={options} />
+    </div>
+  );
 }

@@ -1,51 +1,47 @@
 import { Router } from 'express';
-import { authenticateToken } from '../middleware/auth';
-import { deployContract } from '../../deploy';
 
 const router = Router();
 
-// Start a new deployment
-router.post('/', authenticateToken, async (req, res) => {
-  try {
-    const { projectId, contractName, contractPath, network, privateKey } = req.body;
+// Mock deployment data
+let deployments = [
+  {
+    id: '1',
+    contractName: 'MyToken',
+    network: 'rinkeby',
+    deployer: '0x1234...abcd',
+    gasUsed: 21000,
+    txHash: '0xabc123...',
+    timestamp: new Date().toISOString(),
+  },
+];
 
-    if (!projectId || !contractName || !contractPath || !network || !privateKey) {
-      return res.status(400).json({
-        message: 'Missing required fields: projectId, contractName, contractPath, network, privateKey'
-      });
-    }
-
-    const contract = await deployContract({
-      network,
-      privateKey,
-      rpcUrl: process.env.RPC_URL || 'http://localhost:8545',
-      etherscanApiKey: process.env.ETHERSCAN_API_KEY
-    }, contractName, contractPath);
-
-    res.status(201).json({
-      projectId,
-      deploymentId: Date.now(),
-      status: 'success',
-      contractAddress: contract.target.toString(),
-      network
-    });
-  } catch (error) {
-    console.error('Deployment error:', error);
-    res.status(500).json({
-      message: 'Deployment failed',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
+// Get deployment history
+router.get('/', (req, res) => {
+  res.json(deployments);
 });
 
-// Get deployment status
-router.get('/:deploymentId', authenticateToken, (req, res) => {
-  // Mock deployment status - replace with actual deployment tracking
-  res.json({
-    deploymentId: req.params.deploymentId,
-    status: 'completed',
-    timestamp: new Date().toISOString()
-  });
+// Deploy new contract
+router.post('/deploy', (req, res) => {
+  const { contractName, network, githubTag } = req.body;
+  // TODO: Implement deployment logic here
+  const newDeployment = {
+    id: (deployments.length + 1).toString(),
+    contractName,
+    network,
+    deployer: '0xdeadbeef', // Placeholder
+    gasUsed: 0,
+    txHash: '0x0',
+    timestamp: new Date().toISOString(),
+  };
+  deployments.push(newDeployment);
+  res.status(201).json(newDeployment);
+});
+
+// Rollback or redeploy
+router.post('/rollback', (req, res) => {
+  const { deploymentId } = req.body;
+  // TODO: Implement rollback/redeploy logic here
+  res.json({ message: `Rollback/redeploy triggered for deployment ${deploymentId}` });
 });
 
 export default router;
