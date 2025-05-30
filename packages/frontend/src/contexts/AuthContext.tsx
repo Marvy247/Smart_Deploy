@@ -3,10 +3,14 @@ import { useAuth } from '../hooks/useAuth';
 
 interface AuthContextType {
   token: string | null;
+  githubToken: string | null;
   loading: boolean;
   login: () => Promise<boolean>;
+  githubLogin: () => Promise<void>;
+  handleGithubCallback: (code: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  isGitHubAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
