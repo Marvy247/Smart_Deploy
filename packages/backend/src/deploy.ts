@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 
 import { verifyContract, checkVerificationStatus } from './verify';
+import { auditContract, formatAuditReport } from './audit/audit';
+import { AuditConfig } from './audit/types';
 import { EventMonitor } from './eventMonitor';
 
 export interface DeploymentConfig {
@@ -10,6 +12,7 @@ export interface DeploymentConfig {
   privateKey: string;
   rpcUrl: string;
   etherscanApiKey?: string;
+  auditConfig?: AuditConfig;
 }
 
 export async function deployContract(
@@ -24,6 +27,21 @@ export async function deployContract(
   const wallet = new Wallet(config.privateKey, provider);
 
   const artifact = JSON.parse(fs.readFileSync(path.resolve(contractArtifactPath), 'utf-8'));
+  
+  // Run security audit if configured
+  if (config.auditConfig) {
+    console.log('🔍 Running security audit...');
+    const sourceCode = fs.readFileSync(path.resolve(contractArtifactPath), 'utf-8');
+    const auditResult = await auditContract(sourceCode, config.auditConfig);
+    const auditReport = formatAuditReport(auditResult);
+    console.log(auditReport);
+    fs.writeFileSync('audit.log', auditReport);
+    
+    if (!auditResult.passed) {
+      throw new Error('❌ Deployment blocked due to security audit findings');
+    }
+  }
+
   const factory = new ContractFactory(artifact.abi, artifact.bytecode, wallet);
 
   console.log(`🚀 Starting deployment of ${contractName} to network ${config.network}...`);
