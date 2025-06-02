@@ -1,1 +1,1 @@
-{"root":["./src/config.ts","./src/index.ts"],"version":"5.8.3"}
+{"root":["./src/config.ts","./src/index.ts","./src/audit/slither.ts","./src/audit/types.ts","./src/commands/demo.ts","./src/commands/demo/ascii-art.ts","./src/deploy/history.ts","./src/deploy/index.ts","./src/deploy/networks.ts","./src/deploy/types.ts","./src/deploy/__tests__/deploy.integration.test.ts","./src/deploy/__tests__/deploy.test.ts"],"version":"5.8.3"}

@@ -1,0 +1,9 @@
+--2025-05-31 17:43:30--  https://github.com/ethereum/solidity/releases/download/v0.8.19/solc-static-linux
+Resolving github.com (github.com)... 20.26.156.215
+Connecting to github.com (github.com)|20.26.156.215|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://objects.githubusercontent.com/github-production-release-asset-2e65be/40892817/4fceb727-87fd-40ff-accf-2d32d678f7e4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=releaseassetproduction%2F20250531%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250531T164334Z&X-Amz-Expires=300&X-Amz-Signature=be236d4a3a129d9c4364d6d66f9b53da39c241875f9f50da7a8ca34a8a09c53c&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3Dsolc-static-linux&response-content-type=application%2Foctet-stream [following]
+--2025-05-31 17:43:31--  https://objects.githubusercontent.com/github-production-release-asset-2e65be/40892817/4fceb727-87fd-40ff-accf-2d32d678f7e4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=releaseassetproduction%2F20250531%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250531T164334Z&X-Amz-Expires=300&X-Amz-Signature=be236d4a3a129d9c4364d6d66f9b53da39c241875f9f50da7a8ca34a8a09c53c&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3Dsolc-static-linux&response-content-type=application%2Foctet-stream
+Resolving objects.githubusercontent.com (objects.githubusercontent.com)... 185.199.110.133, 185.199.108.133, 185.199.111.133, ...
+Connecting to objects.githubusercontent.com (objects.githubusercontent.com)|185.199.110.133|:443... connected.
+Unable to establish SSL connection.

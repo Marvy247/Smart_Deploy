@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import * as verifyModule from './verify';
 import { deployContract, DeploymentConfig } from './deploy';
 
-describe('deployContract', function () {
+describe('deployContract', function (this: Mocha.Suite) {
   this.timeout(60000); // Increase timeout for deployment
 
   const validConfig: DeploymentConfig = {
@@ -56,8 +56,8 @@ describe('deployContract', function () {
     try {
       await deployContract(invalidConfig, 'Counter', artifactPath);
       throw new Error('Deployment should have failed but did not');
-    } catch (error: any) {
-      expect(error).to.exist;
+    } catch (error) {
+      expect(error).to.be.instanceOf(Error);
     }
   });
 });

@@ -1,10 +1,14 @@
-const path = require('path');
-const fs = require('fs');
-const config = require('./deploy-config.json');
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import config from './deploy-config.json' assert { type: 'json' };
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 let deployContract;
 try {
-  deployContract = require(path.join(__dirname, '../packages/backend/src/deploy.ts')).deployContract;
+  const deployModule = await import('../packages/backend/src/deploy.ts');
+  deployContract = deployModule.deployContract;
 } catch (err) {
   console.error('Failed to load deploy module:', err);
   process.exit(1);

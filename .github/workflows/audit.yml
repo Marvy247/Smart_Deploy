@@ -1,0 +1,23 @@
+name: Smart Contract Audit
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'src/**', 'test/**' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  slither:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm install -g slither-analyzer
+      - run: npm ci
+      - run: npx smart-deploy audit ./src
+      - name: Upload report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: slither-report
+          path: slither-report.json

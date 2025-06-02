@@ -1,0 +1,23 @@
+{
+  "filter_paths": "node_modules",
+  "exclude_informational": false,
+  "exclude_low": false,
+  "exclude_medium": false,
+  "exclude_high": false,
+  "json": "slither-report.json",
+  "fail_on": "low",
+  "solc_remaps": [
+    "forge-std/=lib/forge-std/src/",
+    "@openzeppelin/=lib/openzeppelin-contracts/"
+  ],
+  "detect": {
+    "reentrancy": true,
+    "reentrancy-eth": true,
+    "reentrancy-no-eth": true,
+    "reentrancy-benign": true
+  },
+  "triage": false,
+  "solc_args": "--optimize",
+  "solc_optimize": true,
+  "solc_optimize_runs": 200
+}
