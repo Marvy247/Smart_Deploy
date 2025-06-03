@@ -22,6 +22,14 @@ export interface ToolResult {
   findings: Finding[];
 }
 
+export interface VulnerabilityCounts {
+  high: number;
+  medium: number;
+  low: number;
+  informational: number;
+  total: number;
+}
+
 export interface AuditResult {
   success: boolean;
   error?: string;
@@ -31,7 +39,10 @@ export interface AuditResult {
     high: number;
     medium: number;
     low: number;
+    informational?: number;
+    total?: number;
   };
   passed?: boolean;
   timestamp?: number;
+  detectorStats?: Record<string, number>;
 }
