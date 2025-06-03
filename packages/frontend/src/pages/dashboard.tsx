@@ -1,4 +1,3 @@
-import Layout from '@/components/layout/Layout'
 import Dashboard from '@/components/dashboard/Dashboard'
 import { DashboardSkeleton } from '@/components/dashboard/LoadingSkeleton'
 import { Suspense } from 'react'
@@ -51,14 +50,12 @@ export default function DashboardPage({
   deployments = []
 }: DashboardPageProps) {
   return (
-    <Layout>
-      <Suspense fallback={<DashboardSkeleton />}>
-        <Dashboard 
-          verification={verification}
-          security={security}
-          deployments={deployments}
-        />
-      </Suspense>
-    </Layout>
+    <Suspense fallback={<DashboardSkeleton />}>
+      <Dashboard 
+        verification={verification}
+        security={security}
+        deployments={deployments}
+      />
+    </Suspense>
   )
 }
