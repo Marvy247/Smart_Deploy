@@ -1,5 +1,6 @@
 import { execSync } from 'child_process';
 import { AuditResult, AuditConfig, AuditFinding, AuditSeverity, VulnerabilityType } from './types';
+import { analyzeContract } from './contractAnalysis';
 import path from 'path';
 import fs from 'fs';
 
@@ -16,17 +17,19 @@ export async function auditContract(
   const contractPath = path.join(tempDir, 'contract.sol');
   fs.writeFileSync(contractPath, sourceCode);
 
-  // Run security tools
+  // Run security tools and contract analysis
   const slitherResults = runSlither(contractPath);
   const mythrilResults = runMythril(contractPath);
-  
-  // Run additional security checks
   const customChecks = runCustomSecurityChecks(contractPath);
+  
+  // Run contract size and gas analysis
+  const { findings: analysisFindings } = await analyzeContract(contractPath);
 
   const allFindings = [
     ...slitherResults,
     ...mythrilResults,
-    ...customChecks
+    ...customChecks,
+    ...analysisFindings
   ];
 
   const summary = {
@@ -211,7 +214,7 @@ function runCustomSecurityChecks(contractPath: string): AuditFinding[] {
 
 export function formatAuditReport(result: AuditResult): string {
   let report = `\n📊 Security Audit Report:\n`;
-  report += `  Tools used: Slither, Mythril\n`;
+  report += `  Tools used: Slither, Mythril, Contract Analysis\n`;
   report += `  Critical: ${result.summary.critical}\n`;
   report += `  High: ${result.summary.high}\n`;
   report += `  Medium: ${result.summary.medium}\n`;

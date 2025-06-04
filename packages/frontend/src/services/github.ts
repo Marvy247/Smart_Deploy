@@ -7,6 +7,10 @@ export interface Repository {
   html_url: string
   default_branch: string
   language: string
+  owner: {
+    avatar_url: string
+    login: string
+  }
 }
 
 export interface Workflow {

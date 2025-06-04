@@ -1,4 +1,12 @@
 import React from 'react'
+import dynamic from 'next/dynamic'
+import { formatDate } from '@/utils/dateFormat'
+
+// Client-side only components to prevent hydration mismatch
+const ClientSideDateDisplay = dynamic(
+  () => import('@/components/dashboard/ClientSideDateDisplay'),
+  { ssr: false }
+)
 
 interface VerificationStatusProps {
   sourcify: boolean
@@ -68,7 +76,7 @@ export const MemoizedVerificationStatus = React.memo(function VerificationStatus
         </p>
       </div>
       <p className="text-sm text-gray-500">
-        Last checked: {new Date(props.lastChecked).toLocaleDateString()}
+        Last checked: <ClientSideDateDisplay date={props.lastChecked} />
       </p>
     </div>
   )
@@ -96,7 +104,7 @@ export const MemoizedSecurityStatus = React.memo(function SecurityStatus({ slith
         </p>
       </div>
       <p className="text-sm text-gray-500">
-        Last run: {new Date(slither.lastRun).toLocaleDateString()}
+        Last run: <ClientSideDateDisplay date={slither.lastRun} />
       </p>
     </div>
   )
@@ -125,7 +133,7 @@ export const MemoizedGitHubCIStatus = React.memo(function GitHubCIStatus(props: 
         </p>
       </div>
       <p className="text-sm text-gray-500">
-        {new Date(props.lastCommit.timestamp).toLocaleDateString()}
+        <ClientSideDateDisplay date={props.lastCommit.timestamp} />
       </p>
     </div>
   )
@@ -172,7 +180,7 @@ export const DeploymentsTable = React.memo(function DeploymentsTable({ deploymen
               {deployment.deployer}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {new Date(deployment.timestamp).toLocaleDateString()}
+              <ClientSideDateDisplay date={deployment.timestamp} />
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               {deployment.gasUsed}

@@ -39,44 +39,45 @@ export const GitHubDeploymentForm = ({ onDeploy }: GitHubDeploymentFormProps) =>
     <div className="bg-white shadow rounded-lg p-6 mb-6">
       <h2 className="text-lg font-medium mb-4">GitHub Actions Deployment</h2>
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Repository
-            </label>
-            <RepoSelector onSelect={handleRepoSelect} />
-          </div>
-          {selectedRepo && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Workflow
-                </label>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Repository</label>
+              <RepoSelector onSelect={handleRepoSelect} />
+            </div>
+
+            {selectedRepo && (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Workflow</label>
                 <WorkflowSelector
-              repoFullName={selectedRepo}
-              onSelect={(workflow: Workflow) => setSelectedWorkflow(workflow.id.toString())}
-            />
+                  repoFullName={selectedRepo}
+                  onSelect={(workflow: Workflow) => setSelectedWorkflow(workflow.id.toString())}
+                />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Branch
-                </label>
+            )}
+
+            {selectedRepo && (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Branch</label>
                 <input
                   type="text"
                   value={branch}
                   onChange={(e) => setBranch(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
-            </>
-          )}
-          <button
-            type="submit"
-            disabled={!selectedRepo || !selectedWorkflow || isLoading}
-            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? 'Deploying...' : 'Deploy'}
-          </button>
+            )}
+          </div>
+          
+          <div className="pt-4">
+            <button
+              type="submit"
+              disabled={!selectedRepo || !selectedWorkflow || isLoading}
+              className="w-full md:w-auto inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? 'Deploying...' : 'Deploy'}
+            </button>
+          </div>
         </div>
       </form>
     </div>

@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST="{\"components/dashboard/MemoizedComponents.tsx -> @/components/dashboard/ClientSideDateDisplay\":{\"id\":\"components/dashboard/MemoizedComponents.tsx -> @/components/dashboard/ClientSideDateDisplay\",\"files\":[\"static/chunks/src_components_dashboard_ClientSideDateDisplay_tsx.js\"]}}"

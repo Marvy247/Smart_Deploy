@@ -9,6 +9,7 @@ import {
 import SecurityMetricsChart from './charts/SecurityMetricsChart'
 import SecurityScoreRadialChart from './charts/SecurityScoreRadialChart'
 import GasUsageChart from './charts/GasUsageChart'
+import ContractMetricsDashboard from './ContractMetricsDashboard'
 
 interface DashboardProps {
   verification: {
@@ -51,11 +52,65 @@ interface DashboardProps {
     txHash: string
     gasUsed: string | number
   }>
+  contractAnalysis?: {
+    size: {
+      bytecode: number
+      deployedBytecode: number
+      sourceLines: number
+    }
+    gasAnalysis: {
+      deploymentCost: number
+      methodCosts: Array<{
+        name: string
+        cost: number
+        optimization?: string
+      }>
+    }
+    complexityScore: number
+  }
+  healthMetrics?: {
+    contractSize: {
+      current: number
+      limit: number
+      recommendation?: string
+    }
+    gasEfficiency: {
+      score: number
+      suggestions: Array<{
+        type: string
+        description: string
+        impact: 'high' | 'medium' | 'low'
+        potentialSavings?: string
+      }>
+    }
+    testCoverage: {
+      percentage: number
+      uncoveredLines: number
+      criticalFunctions: Array<string>
+    }
+    deploymentCosts: {
+      estimated: string
+      historical: Array<{
+        network: string
+        cost: string
+        date: string
+      }>
+    }
+  }
   isLoading?: boolean
   error?: string
 }
 
-export default function Dashboard({ verification, security, githubCI, deployments = [], isLoading, error }: DashboardProps) {
+export default function Dashboard({ 
+  verification, 
+  security, 
+  githubCI, 
+  deployments = [], 
+  contractAnalysis,
+  healthMetrics,
+  isLoading, 
+  error 
+}: DashboardProps) {
   const [activeTab, setActiveTab] = useState('overview')
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
@@ -234,43 +289,55 @@ export default function Dashboard({ verification, security, githubCI, deployment
         )}
 
         {activeTab === 'security' && (
-          <div className="rounded-lg border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-lg font-medium mb-4">Security Analysis</h3>
-            <div className="space-y-6">
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-2">Vulnerability Breakdown</h4>
-                {typeof security.vulnerabilities !== 'number' && (
-                  <SecurityMetricsChart vulnerabilities={security.vulnerabilities} />
+          <div className="space-y-6">
+            <div className="rounded-lg border border-gray-200 p-6 shadow-sm">
+              <h3 className="text-lg font-medium mb-4">Security Analysis</h3>
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-2">Vulnerability Breakdown</h4>
+                  {typeof security.vulnerabilities !== 'number' && (
+                    <SecurityMetricsChart vulnerabilities={security.vulnerabilities} />
+                  )}
+                </div>
+
+                {security.detectorStats && Object.keys(security.detectorStats).length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-2">Detector Statistics</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {Object.entries(security.detectorStats).map(([detector, count]) => (
+                        <div key={detector} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                          <span className="text-sm">{detector}</span>
+                          <span className="text-sm font-medium">{count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {security.reportUrl && (
+                  <div className="mt-4">
+                    <a
+                      href={security.reportUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                    >
+                      View Full Report
+                    </a>
+                  </div>
                 )}
               </div>
-
-              {security.detectorStats && Object.keys(security.detectorStats).length > 0 && (
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-2">Detector Statistics</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(security.detectorStats).map(([detector, count]) => (
-                      <div key={detector} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                        <span className="text-sm">{detector}</span>
-                        <span className="text-sm font-medium">{count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {security.reportUrl && (
-                <div className="mt-4">
-                  <a
-                    href={security.reportUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-                  >
-                    View Full Report
-                  </a>
-                </div>
-              )}
             </div>
+
+        {contractAnalysis && healthMetrics && (
+          <div className="mt-6">
+            <ContractMetricsDashboard metrics={{
+              health: healthMetrics,
+              analysis: contractAnalysis
+            }} />
+          </div>
+        )}
+
           </div>
         )}
       </div>

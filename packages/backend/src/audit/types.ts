@@ -15,7 +15,9 @@ export enum VulnerabilityType {
   FRONT_RUNNING = 'front-running',
   TIME_MANIPULATION = 'time-manipulation',
   GAS_LIMIT = 'gas-limit',
-  DENIAL_OF_SERVICE = 'denial-of-service'
+  DENIAL_OF_SERVICE = 'denial-of-service',
+  SIZE_OPTIMIZATION = 'size-optimization',
+  GAS_OPTIMIZATION = 'gas-optimization'
 }
 
 export interface AuditFinding {
