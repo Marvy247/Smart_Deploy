@@ -49,9 +49,13 @@ export default function ProjectsPage() {
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Status:</span>
               <span className={`px-2 py-1 rounded text-sm ${
-                project.status === 'Active' 
+                project.status === 'healthy' 
                   ? 'bg-green-100 text-green-800'
-                  : 'bg-yellow-100 text-yellow-800'
+                  : project.status === 'warning'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : project.status === 'error'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-gray-100 text-gray-800'
               }`}>
                 {project.status}
               </span>

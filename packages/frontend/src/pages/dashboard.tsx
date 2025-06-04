@@ -6,7 +6,7 @@ interface DashboardPageProps {
   verification?: {
     sourcify: boolean
     etherscan: boolean
-    lastChecked: Date
+    lastChecked: string // ISO string
   }
   security?: {
     vulnerabilities: number | {
@@ -20,7 +20,7 @@ interface DashboardPageProps {
     optimizations: number
     score: number
     reportUrl?: string
-    lastRun: Date
+    lastRun: string // ISO string
     detectorStats?: Record<string, number>
   }
   deployments?: Array<{
@@ -28,9 +28,9 @@ interface DashboardPageProps {
     network: string
     address: string
     deployer: string
-    timestamp: Date
+    timestamp: string // ISO string
     txHash: string
-    gasUsed: string
+    gasUsed: number
   }>
 }
 
@@ -38,14 +38,14 @@ export default function DashboardPage({
   verification = {
     sourcify: false,
     etherscan: false,
-    lastChecked: new Date()
+    lastChecked: new Date(0).toISOString() // ISO string
   },
   security = {
     vulnerabilities: 0,
     warnings: 0,
     optimizations: 0,
     score: 0,
-    lastRun: new Date()
+    lastRun: new Date(0).toISOString() // ISO string
   },
   deployments = []
 }: DashboardPageProps) {
@@ -54,7 +54,12 @@ export default function DashboardPage({
       <Dashboard 
         verification={verification}
         security={security}
-        deployments={deployments}
+          deployments={deployments.map(d => ({
+            ...d,
+            gasUsed: d.gasUsed.toString(),
+            timestamp: new Date(d.timestamp).toISOString() // Convert to ISO string
+          }))}
+
       />
     </Suspense>
   )

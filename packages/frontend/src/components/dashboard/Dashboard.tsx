@@ -3,14 +3,18 @@ import {
   MemoizedVerificationStatus,
   MemoizedSecurityStatus,
   MemoizedDashboardSkeleton,
-  DeploymentsTable
+  DeploymentsTable,
+  MemoizedGitHubCIStatus
 } from './MemoizedComponents'
+import SecurityMetricsChart from './charts/SecurityMetricsChart'
+import SecurityScoreRadialChart from './charts/SecurityScoreRadialChart'
+import GasUsageChart from './charts/GasUsageChart'
 
 interface DashboardProps {
   verification: {
     sourcify: boolean
     etherscan: boolean
-    lastChecked: Date
+    lastChecked: string // ISO string
   }
   security: {
     vulnerabilities: number | {
@@ -24,23 +28,34 @@ interface DashboardProps {
     optimizations: number
     score: number
     reportUrl?: string
-    lastRun: Date
+    lastRun: string // ISO string
     detectorStats?: Record<string, number>
+  }
+  githubCI?: {
+    status: 'success' | 'failure' | 'pending'
+    branch: string
+    lastCommit: {
+      hash: string
+      message: string
+      timestamp: string // ISO string
+    }
+    workflowName: string
+    workflowUrl?: string
   }
   deployments?: Array<{
     contractName: string
     network: string
     address: string
     deployer: string
-    timestamp: Date
+    timestamp: string // ISO string
     txHash: string
-    gasUsed: string
+    gasUsed: string | number
   }>
   isLoading?: boolean
   error?: string
 }
 
-export default function Dashboard({ verification, security, deployments = [], isLoading, error }: DashboardProps) {
+export default function Dashboard({ verification, security, githubCI, deployments = [], isLoading, error }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('overview')
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
@@ -49,6 +64,7 @@ export default function Dashboard({ verification, security, deployments = [], is
     const startIndex = (currentPage - 1) * itemsPerPage
     return deployments.slice(startIndex, startIndex + itemsPerPage)
   }, [deployments, currentPage, itemsPerPage])
+
 
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab)
@@ -71,7 +87,7 @@ export default function Dashboard({ verification, security, deployments = [], is
   return (
     <div className="space-y-6">
       {/* Status Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="rounded-lg border border-gray-200 p-4 shadow-sm">
           <MemoizedVerificationStatus {...verification} />
         </div>
@@ -84,6 +100,11 @@ export default function Dashboard({ verification, security, deployments = [], is
             detectorStats: security.detectorStats || {}
           }} />
         </div>
+        {githubCI && (
+          <div className="rounded-lg border border-gray-200 p-4 shadow-sm">
+            <MemoizedGitHubCIStatus {...githubCI} />
+          </div>
+        )}
       </div>
 
       {/* Tab Navigation */}
@@ -149,23 +170,22 @@ export default function Dashboard({ verification, security, deployments = [], is
               </div>
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-2">Security Status</h4>
-                <div className="space-y-2">
-                  <p className="text-sm">
-                    <span className="font-medium">Score:</span>{' '}
-                    <span className={`${security.score >= 7 ? 'text-green-600' : 'text-yellow-600'}`}>
-                      {security.score}/10
-                    </span>
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Issues:</span>{' '}
-                    {typeof security.vulnerabilities === 'number'
-                      ? security.vulnerabilities
-                      : security.vulnerabilities.total}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Last Scan:</span>{' '}
-                    {security.lastRun.toLocaleDateString()}
-                  </p>
+                <div className="space-y-4">
+                  <div className="h-40">
+                    <SecurityScoreRadialChart score={security.score} />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm">
+                      <span className="font-medium">Issues:</span>{' '}
+                      {typeof security.vulnerabilities === 'number'
+                        ? security.vulnerabilities
+                        : security.vulnerabilities.total}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-medium">Last Scan:</span>{' '}
+                      {new Date(security.lastRun).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -173,9 +193,21 @@ export default function Dashboard({ verification, security, deployments = [], is
         )}
 
         {activeTab === 'deployments' && (
-          <div className="rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <DeploymentsTable deployments={paginatedDeployments} />
+          <div className="space-y-6">
+            <div className="rounded-lg border border-gray-200 p-6 shadow-sm">
+              <h3 className="text-lg font-medium mb-4">Gas Usage</h3>
+              <GasUsageChart
+                deployments={deployments.map(d => ({
+                  ...d,
+                  timestamp: new Date(d.timestamp),
+                  gasUsed: String(d.gasUsed),
+                }))}
+              />
+            </div>
+            <div className="rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <DeploymentsTable deployments={paginatedDeployments} />
+              </div>
               {deployments.length > itemsPerPage && (
                 <div className="flex items-center justify-between px-6 py-3 bg-gray-50 border-t border-gray-200">
                   <button
@@ -208,38 +240,7 @@ export default function Dashboard({ verification, security, deployments = [], is
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-2">Vulnerability Breakdown</h4>
                 {typeof security.vulnerabilities !== 'number' && (
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <div className="w-24">High:</div>
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-red-500 rounded-full h-2"
-                          style={{ width: `${(security.vulnerabilities.high / security.vulnerabilities.total) * 100}%` }}
-                        />
-                      </div>
-                      <div className="w-12 text-right">{security.vulnerabilities.high}</div>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-24">Medium:</div>
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-yellow-500 rounded-full h-2"
-                          style={{ width: `${(security.vulnerabilities.medium / security.vulnerabilities.total) * 100}%` }}
-                        />
-                      </div>
-                      <div className="w-12 text-right">{security.vulnerabilities.medium}</div>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-24">Low:</div>
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-blue-500 rounded-full h-2"
-                          style={{ width: `${(security.vulnerabilities.low / security.vulnerabilities.total) * 100}%` }}
-                        />
-                      </div>
-                      <div className="w-12 text-right">{security.vulnerabilities.low}</div>
-                    </div>
-                  </div>
+                  <SecurityMetricsChart vulnerabilities={security.vulnerabilities} />
                 )}
               </div>
 
