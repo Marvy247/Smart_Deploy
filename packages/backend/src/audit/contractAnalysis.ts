@@ -19,15 +19,22 @@ interface ContractMetrics {
   complexityScore: number;
 }
 
-export async function analyzeContract(contractPath: string): Promise<{
+export async function analyzeContract(contractInput: string): Promise<{
   metrics: ContractMetrics;
   findings: AuditFinding[];
 }> {
-  const sourceCode = fs.readFileSync(contractPath, 'utf8');
+  let sourceCode: string;
+  try {
+    // Try to read as file path first
+    sourceCode = fs.readFileSync(contractInput, 'utf8');
+  } catch {
+    // If not a file, treat as direct source code
+    sourceCode = contractInput;
+  }
   const findings: AuditFinding[] = [];
   
   // Analyze contract size
-  const sizeMetrics = await getContractSize(contractPath);
+  const sizeMetrics = await getContractSize(sourceCode);
   
   // Check if contract size approaches limits
   if (sizeMetrics.bytecode > 20000) { // Warning at ~80% of limit
@@ -43,7 +50,7 @@ export async function analyzeContract(contractPath: string): Promise<{
   }
 
   // Analyze gas usage
-  const gasAnalysis = await analyzeGasUsage(contractPath);
+  const gasAnalysis = await analyzeGasUsage(sourceCode);
   
   // Add findings for expensive operations
   gasAnalysis.methodCosts.forEach(method => {
@@ -73,20 +80,23 @@ export async function analyzeContract(contractPath: string): Promise<{
   };
 }
 
-async function getContractSize(contractPath: string): Promise<{
+async function getContractSize(sourceCode: string): Promise<{
   bytecode: number;
   deployedBytecode: number;
   sourceLines: number;
 }> {
   try {
+    // Write source to temp file for solc
+    const tempFile = '/tmp/contract.sol';
+    fs.writeFileSync(tempFile, sourceCode);
+    
     // Get compiled bytecode size using solc
-    const output = execSync(`solc --bin ${contractPath}`, {
+    const output = execSync(`solc --bin ${tempFile}`, {
       encoding: 'utf-8'
     });
     const bytecode = output.length / 2; // Convert hex to bytes
 
     // Count source lines (excluding comments and empty lines)
-    const sourceCode = fs.readFileSync(contractPath, 'utf8');
     const sourceLines = sourceCode
       .split('\n')
       .filter(line => line.trim() && !line.trim().startsWith('//'))
@@ -107,7 +117,7 @@ async function getContractSize(contractPath: string): Promise<{
   }
 }
 
-async function analyzeGasUsage(contractPath: string): Promise<{
+async function analyzeGasUsage(sourceCode: string): Promise<{
   deploymentCost: number;
   methodCosts: Array<{
     name: string;
@@ -116,8 +126,12 @@ async function analyzeGasUsage(contractPath: string): Promise<{
   }>;
 }> {
   try {
+    // Write source to temp file for forge
+    const tempFile = '/tmp/contract.sol';
+    fs.writeFileSync(tempFile, sourceCode);
+    
     // Use hardhat gas reporter or similar tool to get gas estimates
-    const output = execSync(`forge test --gas-report ${contractPath}`, {
+    const output = execSync(`forge test --gas-report ${tempFile}`, {
       encoding: 'utf-8'
     });
 

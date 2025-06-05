@@ -1,0 +1,11 @@
+{
+  "mainContract": "MyContract.sol",
+  "networks": {
+    "mainnet": {
+      "constructorArgs": []
+    },
+    "sepolia": {
+      "constructorArgs": []
+    }
+  }
+}

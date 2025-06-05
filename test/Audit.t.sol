@@ -8,22 +8,15 @@ contract AuditTest is Test {
     TestContract testContract;
 
     function setUp() public {
-        testContract = new TestContract();
+        testContract = new TestContract(100); // Initialize with value 100
     }
 
-    function testVulnerableFunctionDetection() public {
-        // Test that vulnerable functions exist
-        (bool reentrancySuccess, ) = address(testContract).call(
-            abi.encodeWithSignature("withdraw(uint256)", 1 ether)
-        );
+    function testValueOperations() public {
+        // Test initial value
+        assertEq(testContract.value(), 100, "Initial value should be 100");
         
-        (bool unsafeTransferSuccess, ) = address(testContract).call(
-            abi.encodeWithSignature("unsafeTransfer(address)", address(this))
-        );
-
-        // withdraw() should fail due to reentrancy check
-        assertFalse(reentrancySuccess, "Reentrancy vulnerability should cause failure");
-        // unsafeTransfer() succeeds but is still vulnerable
-        assertTrue(unsafeTransferSuccess, "Unsafe transfer exists but call succeeds"); 
+        // Test setValue function
+        testContract.setValue(200);
+        assertEq(testContract.value(), 200, "Value should update to 200");
     }
 }

@@ -1,9 +1,12 @@
+'use client'
 import Dashboard from '@/components/dashboard/Dashboard'
 import { DashboardSkeleton } from '@/components/dashboard/LoadingSkeleton'
 import ContractHealthDashboard from '@/components/dashboard/ContractHealthDashboard'
 import { ContractHealthMetrics } from '@/types/contractHealth'
-import { Suspense, useState, useEffect, useCallback } from 'react'
+
+import { useState, useEffect, useCallback } from 'react'
 import { fetchContractMetrics } from '@/services/contractMetrics'
+import mockContractMetrics from '@/tests/mocks/contractMetrics'
 import { ArrowPathIcon } from '@heroicons/react/24/outline'
 import { formatDate } from '@/utils/dateFormat'
 
@@ -55,24 +58,30 @@ export default function DashboardPage({
   deployments = []
 }: DashboardPageProps) {
   const [contractHealthMetrics, setContractHealthMetrics] = useState<ContractHealthMetrics | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null)
+  const [lastRefreshed, setLastRefreshed] = useState<string | null>(null)
 
   const contractAddress = deployments[0]?.address // Get address from first deployment
+  console.log('Dashboard props:', { deployments, contractAddress })
 
   const loadData = useCallback(async () => {
-    if (!contractAddress) return
+    if (!contractAddress) {
+      console.warn('No contract address available - skipping metrics fetch')
+      setError('No contract deployments found')
+      return
+    }
     
     try {
       setLoading(true)
       const metrics = await fetchContractMetrics(contractAddress)
       setContractHealthMetrics(metrics)
-      setLastRefreshed(new Date())
+      setLastRefreshed(new Date().toISOString())
       setError(null)
     } catch (err) {
-      setError('Failed to load contract metrics. Click refresh to try again.')
+      setError('Failed to load contract metrics. Using mock data instead.')
       console.error(err)
+      setContractHealthMetrics(mockContractMetrics)
     } finally {
       setLoading(false)
     }
@@ -87,8 +96,7 @@ export default function DashboardPage({
   }
 
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <div className="space-y-8">
+    <div className="space-y-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Contract Metrics</h2>
           <button 
@@ -100,7 +108,7 @@ export default function DashboardPage({
             Refresh
             {lastRefreshed && (
               <span className="text-xs text-gray-500">
-                Last refreshed: {formatDate(lastRefreshed.toISOString())}
+                Last refreshed: {formatDate(lastRefreshed)}
               </span>
             )}
           </button>
@@ -118,7 +126,7 @@ export default function DashboardPage({
               Retry
             </button>
           </div>
-        ) : contractHealthMetrics ? (
+        ) : contractHealthMetrics && deployments.length > 0 ? (
           <Dashboard 
           verification={verification}
           security={security}
@@ -152,8 +160,13 @@ export default function DashboardPage({
           }}
           healthMetrics={contractHealthMetrics}
         />
-        ) : null}
+        ) : (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
+            {deployments.length === 0 
+              ? 'No contract deployments available' 
+              : 'Failed to load contract metrics'}
+          </div>
+        )}
       </div>
-    </Suspense>
   )
 }

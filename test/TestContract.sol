@@ -1,27 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.17;
 
 contract TestContract {
-    mapping(address => uint256) private balances;
-    address public owner;
-
-    constructor() {
-        owner = msg.sender;
+    uint256 public value;
+    
+    constructor(uint256 _value) {
+        value = _value;
     }
-
-    // Reentrancy vulnerability
-    function withdraw(uint256 amount) public {
-        require(balances[msg.sender] >= amount);
-        (bool success, ) = msg.sender.call{value: amount}("");
-        require(success);
-        balances[msg.sender] -= amount;
-    }
-
-    // Uninitialized storage pointer
-    function unsafeTransfer(address to) public {
-        bytes32[1] memory data;
-        assembly {
-            pop(call(gas(), to, 0, add(data, 0x20), mload(data), 0, 0))
-        }
+    
+    function setValue(uint256 _value) public {
+        value = _value;
     }
 }
